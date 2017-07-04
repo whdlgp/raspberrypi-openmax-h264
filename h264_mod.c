@@ -51,21 +51,16 @@
 
 #define FILENAME "video.h264"
 
+//Encoding setting
 #define VIDEO_FRAMERATE 30
 #define VIDEO_BITRATE 17000000
-#define VIDEO_IDR_PERIOD 0 //Disabled
-#define VIDEO_SEI OMX_FALSE
-#define VIDEO_EEDE OMX_FALSE
-#define VIDEO_EEDE_LOSS_RATE 0
-#define VIDEO_QP OMX_FALSE
-#define VIDEO_QP_I 0 //1 .. 51, 0 means off
-#define VIDEO_QP_P 0 //1 .. 51, 0 means off
-#define VIDEO_PROFILE OMX_VIDEO_AVCProfileHigh
-#define VIDEO_INLINE_HEADERS OMX_FALSE
 
+//Camera component port setting
 //Some settings doesn't work well
 #define CAM_WIDTH 1920
 #define CAM_HEIGHT 1080
+
+//Camera component setting
 #define CAM_SHARPNESS 0 //-100 .. 100
 #define CAM_CONTRAST 0 //-100 .. 100
 #define CAM_BRIGHTNESS 50 //0 .. 100
@@ -805,38 +800,18 @@ void set_h264_settings(component_t* encoder)
 
     OMX_ERRORTYPE error;
 
-    if (!VIDEO_QP)
+    //Bitrate
+    OMX_VIDEO_PARAM_BITRATETYPE bitrate_st;
+    OMX_INIT_STRUCTURE(bitrate_st);
+    bitrate_st.eControlRate = OMX_Video_ControlRateVariable;
+    bitrate_st.nTargetBitrate = VIDEO_BITRATE;
+    bitrate_st.nPortIndex = 201;
+    if ((error = OMX_SetParameter(encoder->handle,
+            OMX_IndexParamVideoBitrate, &bitrate_st)))
     {
-        //Bitrate
-        OMX_VIDEO_PARAM_BITRATETYPE bitrate_st;
-        OMX_INIT_STRUCTURE(bitrate_st);
-        bitrate_st.eControlRate = OMX_Video_ControlRateVariable;
-        bitrate_st.nTargetBitrate = VIDEO_BITRATE;
-        bitrate_st.nPortIndex = 201;
-        if ((error = OMX_SetParameter(encoder->handle,
-                OMX_IndexParamVideoBitrate, &bitrate_st)))
-        {
-            fprintf(stderr, "error: OMX_SetParameter: %s\n",
-                    dump_OMX_ERRORTYPE(error));
-            exit(1);
-        }
-    }
-    else
-    {
-        //Quantization parameters
-        OMX_VIDEO_PARAM_QUANTIZATIONTYPE quantization_st;
-        OMX_INIT_STRUCTURE(quantization_st);
-        quantization_st.nPortIndex = 201;
-        //nQpB returns an error, it cannot be modified
-        quantization_st.nQpI = VIDEO_QP_I;
-        quantization_st.nQpP = VIDEO_QP_P;
-        if ((error = OMX_SetParameter(encoder->handle,
-                OMX_IndexParamVideoQuantization, &quantization_st)))
-        {
-            fprintf(stderr, "error: OMX_SetParameter: %s\n",
-                    dump_OMX_ERRORTYPE(error));
-            exit(1);
-        }
+        fprintf(stderr, "error: OMX_SetParameter: %s\n",
+                dump_OMX_ERRORTYPE(error));
+        exit(1);
     }
 
     //Codec
@@ -853,97 +828,6 @@ void set_h264_settings(component_t* encoder)
         exit(1);
     }
 
-    //IDR period
-    OMX_VIDEO_CONFIG_AVCINTRAPERIOD idr_st;
-    OMX_INIT_STRUCTURE(idr_st);
-    idr_st.nPortIndex = 201;
-    if ((error = OMX_GetConfig(encoder->handle,
-            OMX_IndexConfigVideoAVCIntraPeriod, &idr_st)))
-    {
-        fprintf(stderr, "error: OMX_GetConfig: %s\n",
-                dump_OMX_ERRORTYPE(error));
-        exit(1);
-    }
-    idr_st.nIDRPeriod = VIDEO_IDR_PERIOD;
-    if ((error = OMX_SetConfig(encoder->handle,
-            OMX_IndexConfigVideoAVCIntraPeriod, &idr_st)))
-    {
-        fprintf(stderr, "error: OMX_SetConfig: %s\n",
-                dump_OMX_ERRORTYPE(error));
-        exit(1);
-    }
-
-    //SEI
-    OMX_PARAM_BRCMVIDEOAVCSEIENABLETYPE sei_st;
-    OMX_INIT_STRUCTURE(sei_st);
-    sei_st.nPortIndex = 201;
-    sei_st.bEnable = VIDEO_SEI;
-    if ((error = OMX_SetParameter(encoder->handle,
-            OMX_IndexParamBrcmVideoAVCSEIEnable, &sei_st)))
-    {
-        fprintf(stderr, "error: OMX_SetParameter: %s\n",
-                dump_OMX_ERRORTYPE(error));
-        exit(1);
-    }
-
-    //EEDE
-    OMX_VIDEO_EEDE_ENABLE eede_st;
-    OMX_INIT_STRUCTURE(eede_st);
-    eede_st.nPortIndex = 201;
-    eede_st.enable = VIDEO_EEDE;
-    if ((error = OMX_SetParameter(encoder->handle, OMX_IndexParamBrcmEEDEEnable,
-            &eede_st)))
-    {
-        fprintf(stderr, "error: OMX_SetParameter: %s\n",
-                dump_OMX_ERRORTYPE(error));
-        exit(1);
-    }
-
-    OMX_VIDEO_EEDE_LOSSRATE eede_loss_rate_st;
-    OMX_INIT_STRUCTURE(eede_loss_rate_st);
-    eede_loss_rate_st.nPortIndex = 201;
-    eede_loss_rate_st.loss_rate = VIDEO_EEDE_LOSS_RATE;
-    if ((error = OMX_SetParameter(encoder->handle,
-            OMX_IndexParamBrcmEEDELossRate, &eede_loss_rate_st)))
-    {
-        fprintf(stderr, "error: OMX_SetParameter: %s\n",
-                dump_OMX_ERRORTYPE(error));
-        exit(1);
-    }
-
-    //AVC Profile
-    OMX_VIDEO_PARAM_AVCTYPE avc_st;
-    OMX_INIT_STRUCTURE(avc_st);
-    avc_st.nPortIndex = 201;
-    if ((error = OMX_GetParameter(encoder->handle, OMX_IndexParamVideoAvc,
-            &avc_st)))
-    {
-        fprintf(stderr, "error: OMX_GetParameter: %s\n",
-                dump_OMX_ERRORTYPE(error));
-        exit(1);
-    }
-    avc_st.eProfile = VIDEO_PROFILE;
-    if ((error = OMX_SetParameter(encoder->handle, OMX_IndexParamVideoAvc,
-            &avc_st)))
-    {
-        fprintf(stderr, "error: OMX_SetParameter: %s\n",
-                dump_OMX_ERRORTYPE(error));
-        exit(1);
-    }
-
-    //Inline SPS/PPS
-    OMX_CONFIG_PORTBOOLEANTYPE headers_st;
-    OMX_INIT_STRUCTURE(headers_st);
-    headers_st.nPortIndex = 201;
-    headers_st.bEnabled = VIDEO_INLINE_HEADERS;
-    if ((error = OMX_SetParameter(encoder->handle,
-            OMX_IndexParamBrcmVideoAVCInlineHeaderEnable, &headers_st)))
-    {
-        fprintf(stderr, "error: OMX_SetParameter: %s\n",
-                dump_OMX_ERRORTYPE(error));
-        exit(1);
-    }
-
     //Note: Motion vectors are not implemented in this program.
     //See for further details
     //https://github.com/gagle/raspberrypi-omxcam/blob/master/src/h264.c
@@ -951,7 +835,7 @@ void set_h264_settings(component_t* encoder)
 }
 
 int signal_flag = 0;
-void sig_flag_set(void)
+static void sig_flag_set(int signal)
 {
     signal_flag = 1;
 }
@@ -1076,7 +960,7 @@ int main()
     port_st.format.video.nStride = CAM_WIDTH;
     port_st.format.video.xFramerate = VIDEO_FRAMERATE << 16;
     //Despite being configured later, these two fields need to be set
-    port_st.format.video.nBitrate = VIDEO_QP ? 0 : VIDEO_BITRATE;
+    port_st.format.video.nBitrate = VIDEO_BITRATE;
     port_st.format.video.eCompressionFormat = OMX_VIDEO_CodingAVC;
     if ((error = OMX_SetParameter(encoder.handle, OMX_IndexParamPortDefinition,
             &port_st)))
@@ -1148,14 +1032,6 @@ int main()
         exit(1);
     }
 
-    //Record ~3000 ms
-    /*
-    struct timespec spec;
-    clock_gettime(CLOCK_MONOTONIC, &spec);
-    long now = spec.tv_sec * 1000 + spec.tv_nsec / 1.0e6;
-    long end = now + 3000;
-    */
-
     //signal interrupt
     signal(SIGINT,  sig_flag_set);
     signal(SIGTERM, sig_flag_set);
@@ -1177,11 +1053,14 @@ int main()
         //check if user press "ctrl c" or other interrupt occured
         if(signal_flag_check())
         {
+            printf("Termination by user detected\n");
             //signal interrupt detected
             //wait the key frame for check the boundry of video and exit
+
+            //wait until find I frame(syncframe)
             if(encoder_output_buffer->nFlags & OMX_BUFFERFLAG_SYNCFRAME)
             {
-                printf("Termination by user detected, After a few moments, the program will end.");
+                printf("SyncFrame found, It will be finished in a moment.");
                 break;
             }
         }
@@ -1194,12 +1073,6 @@ int main()
             fprintf(stderr, "error: pwrite\n");
             exit(1);
         }
-        
-        /*
-        clock_gettime(CLOCK_MONOTONIC, &spec);
-        if (spec.tv_sec * 1000 + spec.tv_nsec / 1.0e6 >= end)
-            break;
-        */
     }
     
     printf("------------------------------------------------\n");
