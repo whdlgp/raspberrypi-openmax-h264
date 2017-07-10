@@ -1,5 +1,4 @@
 BIN = h264
-TEST_BIN = h264_mod
 
 CC = gcc
 CFLAGS = -DSTANDALONE -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS \
@@ -15,11 +14,7 @@ INCLUDES = -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads \
 SRC = $(BIN).c dump.c
 OBJS = $(BIN).o dump.o
 
-TEST_SRC = $(TEST_BIN).c dump.c
-TEST_OBJS = $(TEST_BIN).o dump.o
-
 all: $(BIN) $(SRC)
-test: $(TEST_BIN) $(TEST_SRC)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@ -Wno-deprecated-declarations
@@ -27,14 +22,10 @@ test: $(TEST_BIN) $(TEST_SRC)
 $(BIN): $(OBJS)
 	$(CC) -o $@ -Wl,--whole-archive $(OBJS) $(LDFLAGS) -Wl,--no-whole-archive -rdynamic
 
-$(TEST_BIN): $(TEST_OBJS)
-	$(CC) -o $@ -Wl,--whole-archive $(TEST_OBJS) $(LDFLAGS) -Wl,--no-whole-archive -rdynamic
-
-
 .PHONY: clean rebuild
 
 clean:
-	rm -f $(BIN) $(BIN).o dump.o video.h264 $(TEST_BIN) $(TEST_BIN).o
+	rm -f $(BIN) $(BIN).o dump.o video.h264
 
 rebuild:
 	make clean && make
