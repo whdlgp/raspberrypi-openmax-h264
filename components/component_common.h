@@ -35,8 +35,8 @@
 
 //Camera component port setting
 //Some settings doesn't work well
-#define CAM_WIDTH 1280
-#define CAM_HEIGHT 720
+#define CAM_WIDTH 1920
+#define CAM_HEIGHT 1080
 
 //Camera component setting
 #define CAM_SHARPNESS 0 //-100 .. 100

@@ -93,7 +93,7 @@ OMX_ERRORTYPE fill_buffer_done (
 {
     component_t* component = (component_t*)app_data;
 
-    printf ("event: %s, fill_buffer_done\n", component->name);
+    //printf ("event: %s, fill_buffer_done\n", component->name);
     wake (component, EVENT_FILL_BUFFER_DONE);
 
     return OMX_ErrorNone;

@@ -29,7 +29,7 @@ void wait(component_t* component, VCOS_UNSIGNED events,
 //non-event based blocking function
 void wait_enable_port(component_t* component, OMX_U32 port)
 {
-    printf("Check enable port directly.\n");
+    //printf("Check enable port directly.\n");
     
     OMX_ERRORTYPE r;
     OMX_PARAM_PORTDEFINITIONTYPE port_st;
@@ -44,12 +44,12 @@ void wait_enable_port(component_t* component, OMX_U32 port)
         }
         usleep(10000);
     }
-    printf("%s port %d enabled\n", component->name, port);
+    //printf("%s port %d enabled\n", component->name, port);
 }
 
 void wait_disable_port(component_t* component, OMX_U32 port)
 {
-    printf("Check disable port directly.\n");
+    //printf("Check disable port directly.\n");
     
     OMX_ERRORTYPE r;
     OMX_PARAM_PORTDEFINITIONTYPE port_st;
@@ -64,12 +64,12 @@ void wait_disable_port(component_t* component, OMX_U32 port)
         }
         usleep(10000);
     }
-    printf("%s port %d disabled\n", component->name, port);
+    //printf("%s port %d disabled\n", component->name, port);
 }
 
 void wait_state_change(component_t* component, OMX_STATETYPE wanted_state)
 {
-    printf("check state change directly\n");
+    //printf("check state change directly\n");
 
     OMX_STATETYPE receive_state;
     while(receive_state != wanted_state)
@@ -77,7 +77,7 @@ void wait_state_change(component_t* component, OMX_STATETYPE wanted_state)
         OMX_GetState(component->handle, &receive_state);
         usleep(10000);
     }
-    printf("%s state chaneged\n", component->name);
+    //printf("%s state chaneged\n", component->name);
 }
 
 void init_component(component_t* component)
