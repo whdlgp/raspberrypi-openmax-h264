@@ -30,6 +30,10 @@
 
 #include "components/component_common.h" 
 
+#include "components/camera.h"
+#include "components/resize.h"
+#include "components/H264_encoder.h"
+
 #define FILENAME "video.h264"
 #define PREVIEW_NAME "preview.h264"
 
