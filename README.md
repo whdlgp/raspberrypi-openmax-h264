@@ -1,5 +1,28 @@
-openmax-h264
-============
+Openmax encoder example with preview
+====================================
+
+In this example, based on the original sample, high resolution image and low resolution image are simultaneously encoded and stored using additional components such as splitter and resizer.
+
+Build steps:
+
+- Download and install the `gcc` and `make` programs.
+- Download this repository.
+- Compile and execute: `make all && ./h264_with_preview
+
+How to play H.264 video:
+
+- play with omxplayer  
+```
+omxplayer video.h264
+omxplayer preview.h264
+```
+- or use mkvmerge  
+```
+$ mkvmerge --default-duration 0:25p -o video.mkv video.h264
+$ mkvmerge --default-duration 0:25p -o preview.mkv preview.h264
+```
+
+Below is the contents of the readme from the original example.
 
 #### An OpenMAX IL example that records an H.264 video with a Raspberry Pi ####
 
