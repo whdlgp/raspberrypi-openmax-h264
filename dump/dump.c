@@ -389,3 +389,43 @@ void dump_OMX_BUFFERHEADERTYPE (OMX_BUFFERHEADERTYPE* header){
       header->nOutputPortIndex,
       header->nInputPortIndex);
 }
+
+int printNALFrame(unsigned char *frame, int len) {
+    static int count = 0;
+    int i = 0;
+
+    printf("%03d (len=%d):", ++count, len);
+    switch (frame[4] & 0x1F) {
+
+    case 1:
+        printf("[%-3s]", "PoB");
+        break;
+    case 2:
+    case 3:
+    case 4:
+        printf("[%-3s]", "PAT");
+        break;
+    case 5:
+        printf("===========================================================\n");
+        printf("[%-3s]", "IDR");
+
+        break;
+    case 6:
+        printf("[%-3s]", "SEI");
+        break;
+    case 7:
+        printf("[%-3s]", "SPS");
+        break;
+    case 8:
+        printf("[%-3s]", "PPS");
+        break;
+    default:
+        break;
+    }
+
+    for (i = 0; i < 10 && i < len; i++)
+        printf("%02X:", frame[i]);
+
+    printf("\n");
+    return 0;
+}

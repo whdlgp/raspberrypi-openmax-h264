@@ -144,6 +144,38 @@ void set_h264_preview_settings(component_t* encoder_prv)
                 dump_OMX_ERRORTYPE(error));
         exit(1);
     }
+    
+    //SPS/PPS INLINE HEADER mode
+    OMX_CONFIG_PORTBOOLEANTYPE sps_pps_st;
+    OMX_INIT_STRUCTURE(sps_pps_st);
+    sps_pps_st.nPortIndex = 201;
+    sps_pps_st.bEnabled = PREVIEW_SPS_PPS_INLINE;
+    if ((error = OMX_SetParameter(encoder_prv->handle,
+           OMX_IndexParamBrcmVideoAVCInlineHeaderEnable, &sps_pps_st)))
+    {
+        fprintf(stderr, "error: OMX_SetParameter: %s\n",
+                dump_OMX_ERRORTYPE(error));
+        exit(1);
+    }
+
+    //IDR period
+    OMX_VIDEO_CONFIG_AVCINTRAPERIOD idr_st;
+    OMX_INIT_STRUCTURE (idr_st);
+    idr_st.nPortIndex = 201;
+    if ((error = OMX_GetConfig (encoder_prv->handle,
+           OMX_IndexConfigVideoAVCIntraPeriod, &idr_st)))
+    {
+        fprintf(stderr, "error: OMX_GetConfig: %s\n",
+                 dump_OMX_ERRORTYPE (error));
+        exit(1);
+    }
+    idr_st.nIDRPeriod = PREVIEW_IDR_PERIOD;
+    if ((error = OMX_SetConfig (encoder_prv->handle,
+           OMX_IndexConfigVideoAVCIntraPeriod, &idr_st)))
+    {
+        fprintf(stderr, "error: OMX_SetConfig: %s\n", dump_OMX_ERRORTYPE (error));
+        exit(1);
+    }
 
     //Note: Motion vectors are not implemented in this program.
     //See for further details

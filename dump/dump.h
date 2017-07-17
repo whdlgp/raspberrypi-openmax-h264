@@ -17,5 +17,6 @@ const char* dump_OMX_INDEXTYPE (OMX_INDEXTYPE type);
 void dump_OMX_PARAM_PORTDEFINITIONTYPE (OMX_PARAM_PORTDEFINITIONTYPE* port);
 void dump_OMX_IMAGE_PARAM_PORTFORMATTYPE (OMX_IMAGE_PARAM_PORTFORMATTYPE* port);
 void dump_OMX_BUFFERHEADERTYPE (OMX_BUFFERHEADERTYPE* header);
+int printNALFrame(unsigned char *frame, int len);
 
 #endif

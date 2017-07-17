@@ -32,6 +32,8 @@
 #define PREVIEW_BITRATE 500000
 #define PREVIEW_WIDTH 320
 #define PREVIEW_HEIGHT 240
+#define PREVIEW_SPS_PPS_INLINE OMX_TRUE
+#define PREVIEW_IDR_PERIOD 5
 
 //Camera component port setting
 //Some settings doesn't work well
