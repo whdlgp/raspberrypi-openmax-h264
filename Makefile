@@ -14,6 +14,7 @@ INCLUDES = -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads \
 SRC = $(BIN).c \
 	  $(COMPONENTS_SRC) \
 	  $(DUMP_SRC) \
+	  $(UDP_DIR) \
 
 COMPONENTS_DIR = ./components
 VPATH := $(COMPONENTS_DIR) 
@@ -22,6 +23,10 @@ COMPONENTS_SRC = $(notdir $(wildcard $(COMPONENTS_DIR)/*.c))
 DUMP_DIR = ./dump
 VPATH := $(VPATH):$(DUMP_DIR)
 DUMP_SRC = $(notdir $(wildcard $(DUMP_DIR)/*.c))
+
+UDP_DIR = ./udp
+VPATH := $(VPAHT):$(UDP_DIR)
+UDP_SRC = $(nodir $(wildcard $(UDP_DIR)/*.c))
 
 OBJ_DIR = ./objs
 OBJS = $(addprefix $(OBJ_DIR)/,$(SRC:.c=.o))
