@@ -144,7 +144,7 @@ void* preview_thread(void* arg)
         }
         
         //print type of NAL header
-        printNALFrame(cmp->buffer->pBuffer, cmp->buffer->nFilledLen);
+        //printNALFrame(cmp->buffer->pBuffer, cmp->buffer->nFilledLen);
 
         //Append the buffer into the file
         if (pwrite(*(cmp->fd), cmp->buffer->pBuffer,
