@@ -11,22 +11,23 @@ LDFLAGS = -L/opt/vc/lib -lopenmaxil -lbcm_host -lvcos -lvchiq_arm -lpthread
 INCLUDES = -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads \
 		-I/opt/vc/include/interface/vmcs_host/linux
 
+VPATH = $(COMPONENTS_DIR) \
+	    $(DUMP_DIR) \
+		$(UDP_DIR) \
+
 SRC = $(BIN).c \
 	  $(COMPONENTS_SRC) \
 	  $(DUMP_SRC) \
-	  $(UDP_DIR) \
+	  $(UDP_SRC) \
 
 COMPONENTS_DIR = ./components
-VPATH := $(COMPONENTS_DIR) 
 COMPONENTS_SRC = $(notdir $(wildcard $(COMPONENTS_DIR)/*.c))
 
 DUMP_DIR = ./dump
-VPATH := $(VPATH):$(DUMP_DIR)
 DUMP_SRC = $(notdir $(wildcard $(DUMP_DIR)/*.c))
 
 UDP_DIR = ./udp
-VPATH := $(VPAHT):$(UDP_DIR)
-UDP_SRC = $(nodir $(wildcard $(UDP_DIR)/*.c))
+UDP_SRC = $(notdir $(wildcard $(UDP_DIR)/*.c))
 
 OBJ_DIR = ./objs
 OBJS = $(addprefix $(OBJ_DIR)/,$(SRC:.c=.o))
@@ -45,4 +46,4 @@ clean:
 	rm -f $(BIN) $(OBJ_DIR)/*.o
 
 printval:
-	$(info $(OBJS))
+	$(info $(VPATH))

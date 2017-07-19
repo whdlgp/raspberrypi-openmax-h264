@@ -34,6 +34,9 @@
 #include "components/resize.h"
 #include "components/H264_encoder.h"
 
+#include "udp/udp_receive.h"
+#include "udp/udp_send.h"
+
 #define FILENAME "video.h264"
 #define PREVIEW_NAME "preview.h264"
 
@@ -114,6 +117,13 @@ void* preview_thread(void* arg)
 
     OMX_ERRORTYPE error;
 
+    //for check time delay or interval between camera and encoder(or each frame)
+    struct timespec spec;
+    clock_gettime(CLOCK_MONOTONIC, &spec);
+    long pre_time = spec.tv_sec*1000 + spec.tv_nsec/1.0e6;
+    long now;
+    long time_interval = 0;
+
     printf("preview thread will write to preview.h264 file\n");
     while (1)
     {
@@ -127,6 +137,13 @@ void* preview_thread(void* arg)
 
         //Wait until it's filled
         wait(cmp->component, EVENT_FILL_BUFFER_DONE, 0);
+        
+        //for check time delay or interval between camera and encoder(or each frame)
+        clock_gettime(CLOCK_MONOTONIC, &spec);
+        now = spec.tv_sec*1000 + spec.tv_nsec/1.0e6;
+        time_interval = now - pre_time;
+        printf("time interval : %ld\n", time_interval);
+        pre_time = now;
 
         //check if user press "ctrl c" or other interrupt occured
         if(signal_flag_check())
