@@ -14,14 +14,18 @@ INCLUDES = -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads \
 
 VPATH = $(COMPONENTS_DIR) \
 		$(DUMP_DIR) \
+		$(PREVIEW_DIR) \
+		$(PREVIEW_UDP_DIR) \
 
 COMMON_SRC = $(COMPONENTS_SRC) \
 			 $(DUMP_SRC) \
 
-PREVIEW_SRC = $(PREVIEW_BIN).c \
+PREVIEW_DIR = ./h264_with_preview_dir
+PREVIEW_SRC = $(notdir $(wildcard $(PREVIEW_DIR)/*.c)) \
 			  $(COMMON_SRC) \
 
-PREVIEW_UDP_SRC = $(PREVIEW_UDP_BIN).c \
+PREVIEW_UDP_DIR = ./h264_udp_stream_dir
+PREVIEW_UDP_SRC = $(notdir $(wildcard $(PREVIEW_UDP_DIR)/*.c)) \
 				  $(COMMON_SRC) \
 
 COMPONENTS_DIR = ./components
