@@ -1,24 +1,37 @@
 #include "omx_part.h"
 
 //Variable, handlers for OMX components
-OMX_ERRORTYPE error;
-OMX_BUFFERHEADERTYPE* encoder_output_buffer;
-OMX_BUFFERHEADERTYPE* preview_output_buffer;
-component_t camera;
-component_t encoder;
-component_t encoder_prv;
-component_t resize;
-component_t splitter;
-component_t null_sink;
+static OMX_ERRORTYPE error;
+static OMX_BUFFERHEADERTYPE* encoder_output_buffer;
+static OMX_BUFFERHEADERTYPE* preview_output_buffer;
+static component_t camera;
+static component_t encoder;
+static component_t encoder_prv;
+static component_t resize;
+static component_t splitter;
+static component_t null_sink;
+
+//It looks good to use structures to easily share components and buffers with the outside world.
+components_n_buffers cmp_buf;
 
 void rpiomx_open()
-{
+{ 
     camera.name      = "OMX.broadcom.camera";
     encoder.name     = "OMX.broadcom.video_encode";
     encoder_prv.name = "OMX.broadcom.video_encode";
     resize.name      = "OMX.broadcom.resize";
     splitter.name    = "OMX.broadcom.video_splitter";
     null_sink.name   = "OMX.broadcom.null_sink";
+
+    //make it easier to share handlers and buffers when more components are available
+    cmp_buf.camera      = camera;
+    cmp_buf.encoder     = encoder;
+    cmp_buf.encoder_prv = encoder_prv;
+    cmp_buf.resize      = resize;
+    cmp_buf.splitter    = splitter;
+    cmp_buf.null_sink   = null_sink;
+    cmp_buf.encoder_output_buffer = encoder_output_buffer;
+    cmp_buf.preview_output_buffer = preview_output_buffer;
 
     //Initialize Broadcom's VideoCore APIs
     bcm_host_init();

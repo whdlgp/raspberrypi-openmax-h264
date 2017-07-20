@@ -46,7 +46,7 @@ int signal_flag_check(void)
 }
 
 //Informations to pass to the thread as an argument
-typedef struct component_buffer_t{
+typedef struct component_buffer_t {
     int* fd;
     component_t* component;
     OMX_BUFFERHEADERTYPE * buffer;
@@ -189,8 +189,8 @@ int main()
     int encode_status;
     component_buffer_t encode_cmp;
     encode_cmp.fd = &fd;
-    encode_cmp.component = &encoder;
-    encode_cmp.buffer = encoder_output_buffer;
+    encode_cmp.component = &cmp_buf.encoder;
+    encode_cmp.buffer = cmp_buf.encoder_output_buffer;
     
     VCOS_THREAD_T encode_th;
     vcos_thread_create(&encode_th, "encode_thread", NULL, encoding_thread, (void*)(&encode_cmp));
@@ -200,8 +200,8 @@ int main()
     int preview_status;
     component_buffer_t preview_cmp;
     preview_cmp.fd = &fd_prv;
-    preview_cmp.component = &encoder_prv;
-    preview_cmp.buffer = preview_output_buffer;
+    preview_cmp.component = &cmp_buf.encoder_prv;
+    preview_cmp.buffer = cmp_buf.preview_output_buffer;
 
     VCOS_THREAD_T preview_th;
     vcos_thread_create(&preview_th, "preview_thread", NULL, preview_thread, (void*)(&preview_cmp));
