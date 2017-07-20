@@ -23,16 +23,6 @@ void rpiomx_open()
     splitter.name    = "OMX.broadcom.video_splitter";
     null_sink.name   = "OMX.broadcom.null_sink";
 
-    //make it easier to share handlers and buffers when more components are available
-    cmp_buf.camera      = camera;
-    cmp_buf.encoder     = encoder;
-    cmp_buf.encoder_prv = encoder_prv;
-    cmp_buf.resize      = resize;
-    cmp_buf.splitter    = splitter;
-    cmp_buf.null_sink   = null_sink;
-    cmp_buf.encoder_output_buffer = encoder_output_buffer;
-    cmp_buf.preview_output_buffer = preview_output_buffer;
-
     //Initialize Broadcom's VideoCore APIs
     bcm_host_init();
 
@@ -195,7 +185,6 @@ void rpiomx_open()
     change_state(&null_sink, OMX_StateExecuting);
     //wait(&null_sink, EVENT_STATE_SET, 0);
     wait_state_change(&null_sink, OMX_StateExecuting);
-
     
     printf("---------Set camera capture Enable--------------\n");
     //Enable camera capture port. This basically says that the port 71 will be
@@ -213,6 +202,16 @@ void rpiomx_open()
                 dump_OMX_ERRORTYPE(error));
         exit(1);
     }
+
+    //make it easier to share handlers and buffers when more components are available
+    cmp_buf.camera      = &camera;
+    cmp_buf.encoder     = &encoder;
+    cmp_buf.encoder_prv = &encoder_prv;
+    cmp_buf.resize      = &resize;
+    cmp_buf.splitter    = &splitter;
+    cmp_buf.null_sink   = &null_sink;
+    cmp_buf.encoder_output_buffer = encoder_output_buffer;
+    cmp_buf.preview_output_buffer = preview_output_buffer;
 }
 
 void rpiomx_close()

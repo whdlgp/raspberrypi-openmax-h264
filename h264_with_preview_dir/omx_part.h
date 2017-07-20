@@ -12,12 +12,12 @@ void rpiomx_close();
 
 typedef struct components_n_buffers
 {
-    component_t camera;
-    component_t encoder;
-    component_t encoder_prv;
-    component_t resize;
-    component_t splitter;
-    component_t null_sink;
+    component_t* camera;
+    component_t* encoder;
+    component_t* encoder_prv;
+    component_t* resize;
+    component_t* splitter;
+    component_t* null_sink;
 
     OMX_BUFFERHEADERTYPE* encoder_output_buffer;
     OMX_BUFFERHEADERTYPE* preview_output_buffer;

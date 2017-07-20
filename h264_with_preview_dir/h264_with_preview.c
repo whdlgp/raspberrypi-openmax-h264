@@ -189,7 +189,7 @@ int main()
     int encode_status;
     component_buffer_t encode_cmp;
     encode_cmp.fd = &fd;
-    encode_cmp.component = &cmp_buf.encoder;
+    encode_cmp.component = cmp_buf.encoder;
     encode_cmp.buffer = cmp_buf.encoder_output_buffer;
     
     VCOS_THREAD_T encode_th;
@@ -200,7 +200,7 @@ int main()
     int preview_status;
     component_buffer_t preview_cmp;
     preview_cmp.fd = &fd_prv;
-    preview_cmp.component = &cmp_buf.encoder_prv;
+    preview_cmp.component = cmp_buf.encoder_prv;
     preview_cmp.buffer = cmp_buf.preview_output_buffer;
 
     VCOS_THREAD_T preview_th;
@@ -224,6 +224,11 @@ int main()
     
     
     printf("------------------------------------------------\n");
+
+    // Restore signal handlers
+    signal(SIGINT,  SIG_DFL);
+    signal(SIGTERM, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
 
     //Close OpenMAX components
     rpiomx_close();

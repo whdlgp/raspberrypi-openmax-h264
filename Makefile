@@ -12,10 +12,14 @@ LDFLAGS = -L/opt/vc/lib -lopenmaxil -lbcm_host -lvcos -lvchiq_arm -lpthread
 INCLUDES = -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads \
 		-I/opt/vc/include/interface/vmcs_host/linux
 
-VPATH = $(COMPONENTS_DIR) \
-		$(DUMP_DIR) \
-		$(PREVIEW_DIR) \
-		$(PREVIEW_UDP_DIR) \
+
+ifneq "$(findstring preview, $(MAKECMDGOALS))" ""
+VPATH = $(COMPONENTS_DIR) $(DUMP_DIR) $(PREVIEW_DIR) 
+endif
+
+ifneq "$(findstring preview_udp, $(MAKECMDGOALS))" ""
+VPATH = $(COMPONENTS_DIR) $(DUMP_DIR) $(PREVIEW_UDP_DIR)
+endif
 
 COMMON_SRC = $(COMPONENTS_SRC) \
 			 $(DUMP_SRC) \
@@ -38,8 +42,6 @@ OBJ_DIR = ./objs
 PREVIEW_OBJS = $(addprefix $(OBJ_DIR)/,$(PREVIEW_SRC:.c=.o))
 PREVIEW_UDP_OBJS = $(addprefix $(OBJ_DIR)/,$(PREVIEW_UDP_SRC:.c=.o)) 
 
-all: $(PREVIEW_BIN) $(PREVIEW_UDP_BIN)
-
 preview: $(PREVIEW_BIN)
 
 preview_udp: $(PREVIEW_UDP_BIN)
@@ -59,4 +61,4 @@ clean:
 	rm -f $(PREVIEW_BIN) $(PREVIEW_UDP_BIN) $(OBJ_DIR)/*.o
 
 printval:
-	$(info $(PREVIEW_OBJS))
+	$(info $(PREVIEW_SRC))
