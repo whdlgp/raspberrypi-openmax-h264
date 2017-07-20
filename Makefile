@@ -15,13 +15,14 @@ INCLUDES = -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads \
 VPATH = $(COMPONENTS_DIR) \
 		$(DUMP_DIR) \
 
+COMMON_SRC = $(COMPONENTS_SRC) \
+			 $(DUMP_SRC) \
+
 PREVIEW_SRC = $(PREVIEW_BIN).c \
-			  $(COMPONENTS_SRC) \
-			  $(DUMP_SRC) \
+			  $(COMMON_SRC) \
 
 PREVIEW_UDP_SRC = $(PREVIEW_UDP_BIN).c \
-				  $(COMPONENTS_SRC) \
-				  $(DUMP_SRC) \
+				  $(COMMON_SRC) \
 
 COMPONENTS_DIR = ./components
 COMPONENTS_SRC = $(notdir $(wildcard $(COMPONENTS_DIR)/*.c))
