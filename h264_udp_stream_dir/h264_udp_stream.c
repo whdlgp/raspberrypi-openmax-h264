@@ -505,8 +505,8 @@ int main(int argc, char **argv)
     int listenfd, connfd, port;
     socklen_t clientlen;
     struct sockaddr_in clientaddr;
-    struct hostent *hp;
-    char *haddrp;
+    //struct hostent *hp;
+    //char *haddrp;
     if (argc != 2)
     {
         fprintf(stderr, "usage: %s <port>\n", argv[0]);
@@ -514,24 +514,30 @@ int main(int argc, char **argv)
     }
     port = atoi(argv[1]);
 
+    printf("get user input %d\n", port);
+
     listenfd = open_listenfd(port);
     listen(listenfd, 1);
+
+    printf("now listen something\n");
 
     clientlen = sizeof(clientaddr);
 
     while (1) // to stop CTRL-C or kill me 
     {
         connfd = accept(listenfd, (struct sockaddr *) &clientaddr, &clientlen);
+        
+        printf("Accept client\n");
 
         /* determine the domain name and IP address of the client */
-        hp = gethostbyaddr((const char *) &clientaddr.sin_addr.s_addr,
-                sizeof(clientaddr.sin_addr.s_addr), AF_INET);
-        haddrp = inet_ntoa(clientaddr.sin_addr);
-        fprintf(stderr, "CNTL> new client %s (%s) connected\n", hp->h_name, haddrp);
-
+        //hp = gethostbyaddr(&clientaddr.sin_addr, sizeof(clientaddr.sin_addr), AF_INET);
+        //haddrp = inet_ntoa(clientaddr.sin_addr);
+        //fprintf(stderr, "CNTL> new client %s (%s) connected\n", hp->h_name, haddrp);
+        
+        printf("go to stream process\n");
         stream_control(connfd, &clientaddr);
 
-        fprintf(stderr, "CTNL> connection %s (%s) lost\n", hp->h_name, haddrp);
+        //fprintf(stderr, "CTNL> connection %s (%s) lost\n", hp->h_name, haddrp);
 
         close(connfd);
     }
