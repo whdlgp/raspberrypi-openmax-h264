@@ -227,6 +227,21 @@ void* encoding_thread(void* arg)
     return NULL;
 }
 
+enum NAL_TYPE
+{
+    POB = 1,
+    PAT = 4,
+    IDR = 5,
+    SEI = 6,
+    SPS = 7,
+    PPS = 8,
+};
+
+int get_NAL_type(unsigned char* frame, int len)
+{
+    return frame[4] & 0x1f;
+}
+
 //Thread for preview, write resized video to preview.h264
 void* preview_thread(void* arg)
 {
@@ -266,8 +281,15 @@ void* preview_thread(void* arg)
         //print type of NAL header
         //printNALFrame(cmp->buffer->pBuffer, cmp->buffer->nFilledLen);
 
-        //Write buffer to UDP
-        send_data(cmp->buffer->pBuffer, cmp->buffer->nFilledLen);
+        ////Write buffer to UDP
+        //only send IDR slice or SPS/PPS
+        int nal_type = get_NAL_type(cmp->buffer->pBuffer, cmp->buffer->nFilledLen);
+        if((nal_type == IDR) 
+            || (nal_type == SPS)
+            || (nal_type == PPS))
+        {
+            send_data(cmp->buffer->pBuffer, cmp->buffer->nFilledLen);
+        }
     }
 
     vcos_thread_exit((void*)0);
