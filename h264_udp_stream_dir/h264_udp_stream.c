@@ -48,7 +48,7 @@ static void send_data(unsigned char *pBuf, int len)
     int n;
     int flags = 0;
     int cliLen = sizeof(struct sockaddr_in);
-    int _len = len;
+    //int _len = len;
     unsigned char nalType = pBuf[7] & 0x1F;
 
     nframe++;
@@ -77,8 +77,10 @@ static void send_data(unsigned char *pBuf, int len)
             fprintf(stderr, "cannot send all data (%d) to client\n", n);
             break;
         }
+        /*
         fprintf(stdout, "fn=%d(%d),fragment=%d(%d), nal=%d\n", nframe, _len,
                 nfragment, n, nalType); // to check
+        */
         len -= n;
         pBuf += n;  // @TODO header size ?
         nfragment++;
@@ -249,6 +251,9 @@ void* preview_thread(void* arg)
 
     OMX_ERRORTYPE error;
 
+    //declare time stamp variable
+    DECLARE_TIME(sending_period)
+
     printf("preview thread will write to preview.h264 file\n");
     while (1)
     {
@@ -288,7 +293,12 @@ void* preview_thread(void* arg)
             || (nal_type == SPS)
             || (nal_type == PPS))
         {
+            STOP_TIME(sending_period)
+            PRINT_EXECUTION_TIME(sending_period)
+
             send_data(cmp->buffer->pBuffer, cmp->buffer->nFilledLen);
+        
+            START_TIME(sending_period)
         }
     }
 
