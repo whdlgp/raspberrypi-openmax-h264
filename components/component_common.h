@@ -24,21 +24,21 @@
   (x).nVersion.s.nStep = OMX_VERSION_STEP
 
 //Encoding setting
-#define VIDEO_FRAMERATE 25
+#define VIDEO_FRAMERATE 30
 #define VIDEO_BITRATE 10000000
 
 //Preview Resizing and Encoding setting
-#define PREVIEW_FRAMERATE 25
+#define PREVIEW_FRAMERATE 30
 #define PREVIEW_BITRATE 500000
 #define PREVIEW_WIDTH 320
 #define PREVIEW_HEIGHT 240
 #define PREVIEW_SPS_PPS_INLINE OMX_TRUE
-#define PREVIEW_IDR_PERIOD 5
+#define PREVIEW_IDR_PERIOD 3
 
 //Camera component port setting
 //Some settings doesn't work well
-#define CAM_WIDTH 1920
-#define CAM_HEIGHT 1080
+#define CAM_WIDTH 1280
+#define CAM_HEIGHT 720
 
 //Camera component setting
 #define CAM_SHARPNESS 0 //-100 .. 100
