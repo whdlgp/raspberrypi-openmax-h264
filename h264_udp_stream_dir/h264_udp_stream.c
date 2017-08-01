@@ -314,13 +314,16 @@ static void *stream_loop(void *arg)
     struct sockaddr_in servAddr;
     short localport = LOCAL_SERVER_PORT + rand() % 1000;
     cliAddr = *(struct sockaddr_in *) arg; // make a copy for modified
-
+    
     int fd = open(FILENAME, O_WRONLY | O_CREAT | O_TRUNC | O_APPEND, 0666);
     if (fd == -1)
     {
         fprintf(stderr, "error: open main video file\n");
         exit(1);
     }
+
+    //frame count initialise
+    nframe = 0;
 
     // 1.  create omx grpah  
     rpiomx_open();
