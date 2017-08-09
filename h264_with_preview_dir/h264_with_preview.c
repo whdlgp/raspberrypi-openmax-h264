@@ -52,12 +52,34 @@ typedef struct component_buffer_t {
     OMX_BUFFERHEADERTYPE * buffer;
 } component_buffer_t;
 
+enum NAL_TYPE
+{
+    POB = 1,
+    PAT = 4,
+    IDR = 5,
+    SEI = 6,
+    SPS = 7,
+    PPS = 8,
+};
+
+int get_NAL_type(unsigned char* frame, int len)
+{
+    return frame[4] & 0x1f;
+}
+
 //Thread for encode and write to video.h264
 void* encoding_thread(void* arg)
 {
     component_buffer_t* cmp = (component_buffer_t*)arg;
 
     OMX_ERRORTYPE error;
+
+    //for calculate actual frame rate
+    uint64_t pre_time = 0;
+    uint64_t currunt_time = 0;
+    uint64_t time_gap = 0;
+    int frame_count = 0;
+    float frame_rate = 0;
 
     printf("Encoding thread will write to video.h264 file\n");
     while (1)
@@ -72,7 +94,14 @@ void* encoding_thread(void* arg)
 
         //Wait until it's filled
         wait(cmp->component, EVENT_FILL_BUFFER_DONE, 0);
-
+        
+        //for calculate actual frame rate
+        pre_time = currunt_time;
+        currunt_time = GetTimeStamp();
+        time_gap = currunt_time - pre_time;
+        frame_rate = (double)1000000/(double)time_gap;
+        frame_count++;
+        printf("encoding_thread\nframecount : %d\nframerate : %f\n\n", frame_count, frame_rate);
         //check if user press "ctrl c" or other interrupt occured
         if(signal_flag_check())
         {
@@ -110,6 +139,13 @@ void* preview_thread(void* arg)
 
     OMX_ERRORTYPE error;
 
+    //for calculate actual frame rate
+    uint64_t pre_time = 0;
+    uint64_t currunt_time = 0;
+    uint64_t time_gap = 0;
+    int frame_count = 0;
+    float frame_rate = 0;
+
     printf("preview thread will write to preview.h264 file\n");
     while (1)
     {
@@ -139,6 +175,19 @@ void* preview_thread(void* arg)
             }
         }
         
+        //for calculate actual frame rate
+        int nal_type = get_NAL_type(cmp->buffer->pBuffer, cmp->buffer->nFilledLen);
+        if((nal_type != SPS)
+           && (nal_type != PPS))
+        {
+            pre_time = currunt_time;
+            currunt_time = GetTimeStamp();
+            time_gap = currunt_time - pre_time;
+            frame_rate = (double)1000000/(double)time_gap;
+            frame_count++;
+            printf("preview_thread\nframecount : %d\nframerate : %f\n\n", frame_count, frame_rate);
+        }
+ 
         //print type of NAL header
         //printNALFrame(cmp->buffer->pBuffer, cmp->buffer->nFilledLen);
 
