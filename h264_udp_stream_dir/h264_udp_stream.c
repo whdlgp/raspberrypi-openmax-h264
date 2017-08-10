@@ -49,8 +49,7 @@ static void send_data(unsigned char *pBuf, int len)
     int flags = 0;
     int cliLen = sizeof(struct sockaddr_in);
     //int _len = len;
-    unsigned char nalType = pBuf[7] & 0x1F;
-
+    unsigned char nalType = pBuf[4] & 0x1F;
     nframe++;
     int nfragment = 0;
 
