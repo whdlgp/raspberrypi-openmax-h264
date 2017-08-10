@@ -7,7 +7,9 @@ Build steps:
 
 - Download and install the `gcc` and `make` programs.
 - Download this repository.
-- Compile and execute: `make all && ./h264_with_preview
+- if want to compile 'h264_with_preview' example, type 'make preview'
+- if want to compile 'h264_udp_stream' example, type 'make preview_udp'
+- and excute like './output file name'
 
 How to play H.264 video:
 
