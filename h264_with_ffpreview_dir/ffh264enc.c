@@ -70,7 +70,7 @@ int ffh264_enc_open(int w, int h, int bit_rate, int fps)
     //c->time_base = (AVRational){1,fps};
     c->time_base.den = fps;
     c->time_base.num = 1;
-    c->gop_size = fps;   // 1? or  1 IDR/sec
+    c->gop_size = 1;   // 1? or  1 IDR/sec?
 
     /* key for low delay operation in X264 codec */
     av_opt_set(c->priv_data, "tune", "zerolatency", 0);
@@ -78,8 +78,8 @@ int ffh264_enc_open(int w, int h, int bit_rate, int fps)
     c->delay = 0;        // low delay option 
     c->max_b_frames = 0; // no B frame  
 
-    c->flags &= CODEC_FLAG_GLOBAL_HEADER; // SPS, PPS NAL will be included in IDR NAL 
-
+    c->flags |= CODEC_FLAG_GLOBAL_HEADER; // SPS, PPS will not be included when call 'avcodec_encode_video2' 
+                                          // SPS/PPS information can be obtained separately by reading the context's extradata later.
     // quality control paramters
     c->codec_type = AVMEDIA_TYPE_VIDEO;
     c->coder_type = FF_CODER_TYPE_VLC;
@@ -95,7 +95,7 @@ int ffh264_enc_open(int w, int h, int bit_rate, int fps)
     // implementation level params
     c->thread_count = 3; // more thread more delay
     c->thread_type = FF_THREAD_SLICE;
-    c->refs = 3;  // 1?
+    c->refs = 1;  // 1?
 
     /* 2.2 open it */
     if (avcodec_open2(c, codec, NULL) < 0)
@@ -143,6 +143,16 @@ int ffh264_enc_open(int w, int h, int bit_rate, int fps)
     pkt.size = 0;
 
     return 0;
+}
+
+/*------------------------------------------------------------------
+ * get extradata(SPS/PPS)
+ * return  + : data and data size of extradata(SPS/PPS)
+ ------------------------------------------------------------------*/
+void ffh264_get_global_header(int* header_size, unsigned char* header_data)
+{
+    *header_size = c->extradata_size;
+    memcpy(header_data, c->extradata, c->extradata_size);
 }
 
 /*------------------------------------------------------------------
