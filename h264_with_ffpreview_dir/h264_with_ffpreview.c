@@ -105,7 +105,7 @@ void* encoding_thread(void* arg)
         time_gap = currunt_time - pre_time;
         frame_rate = (double)1000000/(double)time_gap;
         frame_count++;
-        printf("preview_thread\nframecount : %d\nframerate : %f\n\n", frame_count, frame_rate);
+        printf("encoding_thread\nframecount : %d\nframerate : %f\n\n", frame_count, frame_rate);
         //check if user press "ctrl c" or other interrupt occured
         if(signal_flag_check())
         {
