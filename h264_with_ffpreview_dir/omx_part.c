@@ -232,10 +232,8 @@ void rpiomx_close()
     disable_port(&resize, 60);
     //wait(&splitter, EVENT_PORT_ENABLE, 0);
     wait_disable_port(&resize, 60); 
-    
-    disable_port(&resize, 61);
-    //wait(&splitter, EVENT_PORT_ENABLE, 0);
-    wait_disable_port(&resize, 61); 
+
+    disable_resize_output_port(&resize, resize_output_buffer);
     
     disable_port(&encoder, 200);
     wait_disable_port(&encoder, 200); 
