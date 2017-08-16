@@ -123,11 +123,11 @@ void* encoding_thread(void* arg)
         }
 
         //Append the buffer into the file
-        if (pwrite(*(cmp->fd), cmp->buffer->pBuffer,
-                cmp->buffer->nFilledLen,
-                cmp->buffer->nOffset) == -1)
+        if (write(*(cmp->fd)
+                    , cmp->buffer->pBuffer
+                    , cmp->buffer->nFilledLen) == -1)
         {
-            fprintf(stderr, "error: pwrite\n");
+            fprintf(stderr, "error: write\n");
             vcos_thread_exit((void*)1);
         }
     }
@@ -159,6 +159,11 @@ void* preview_thread(void* arg)
     // init software codec
     int width = PREVIEW_WIDTH, height= PREVIEW_HEIGHT, bitrate = PREVIEW_BITRATE, fps = PREVIEW_FRAMERATE; 
     ffh264_enc_open(width, height, bitrate, fps);
+
+    // get SPS/PPS data directly.
+    unsigned char extradata[100] = {0,};
+    int extradata_size = 0;
+    ffh264_get_global_header(&extradata_size, extradata);
 
     while (1)
     {
@@ -193,59 +198,39 @@ void* preview_thread(void* arg)
         int n = ffh264_enc_encode(cmp->buffer->pBuffer, &pBuffer);
         if (n < 0)
         { // errror in encoding
-            fprintf(stderr, "error: pwrite\n");
+            fprintf(stderr, "error: encoding\n");
             vcos_thread_exit((void*) 1);
         }
         else if (n > 0)
         {
-            if (pwrite(*(cmp->fd), pBuffer, n, 0) == -1)
+            // write SPS/PPS data
+            printf("first write\n");
+            if (write(*(cmp->fd)
+                        , extradata
+                        , extradata_size) == -1)
             {
-                fprintf(stderr, "error: pwrite\n");
+                fprintf(stderr, "error: write\n");
+                vcos_thread_exit((void*) 1);
+            }
+            // write frame data
+            if (write(*(cmp->fd)
+                        , pBuffer
+                        , n) == -1)
+            {
+                fprintf(stderr, "error: write\n");
                 vcos_thread_exit((void*) 1);
             }
         }
         else if (n == 0) // encoding ok but no data to give
             continue;
 
-        int nal_type = get_NAL_type(pBuffer, n);
-        printf("nal-t:%d\n", nal_type);
-
-        if (nal_type == 7)
-        { //SPS
-            int i;
-
-            for (i = 5; i < n - 4; i++)
-            {
-                //printf("%02X ", pBuffer[i]);
-                if (pBuffer[i] == 0 && pBuffer[i + 1] == 0
-                        && pBuffer[i + 2] == 0 && pBuffer[i + 3] == 1)
-                {  // PPS
-                    int nal2_type = get_NAL_type(&pBuffer[i], n - i);
-                    printf("nal2-t:%d\n", nal2_type);
-                    int j;
-                    for (j = i + 5; j < n - 4; j++)
-                    {
-                        if (pBuffer[j] == 0 && pBuffer[j + 1] == 0
-                                && pBuffer[j + 2] == 1)
-                        {  //  IDR (001, not 0001, ???)
-                            int nal3_type = get_NAL_type(&pBuffer[j], n - j);
-                            printf("nal3-t:%d\n", nal3_type);
-                            break;
-                        } // if 3rd NAL found, should should be IDR
-                    }
-                } // 2nd NAL found, should be PPS
-            }
-        } // if SPD found
-
-        if ((nal_type != SPS) && (nal_type != PPS))
-        {
-            pre_time = currunt_time;
-            currunt_time = GetTimeStamp();
-            time_gap = currunt_time - pre_time;
-            frame_rate = (double) 1000000 / (double) time_gap;
-            frame_count++;
-            printf("preview_thread\nframecount : %d\nframerate : %f\n\n", frame_count, frame_rate);
-        }
+        pre_time = currunt_time;
+        currunt_time = GetTimeStamp();
+        time_gap = currunt_time - pre_time;
+        frame_rate = (double) 1000000 / (double) time_gap;
+        frame_count++;
+        printf("preview_thread\nframecount : %d\nframerate : %f\n\n", frame_count, frame_rate);
+    
     } // while loop
 
     ffh264_enc_close();
