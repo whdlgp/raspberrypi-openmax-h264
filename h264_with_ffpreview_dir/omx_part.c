@@ -3,16 +3,9 @@
 //Variable, handlers for OMX components
 static OMX_ERRORTYPE error;
 static OMX_BUFFERHEADERTYPE* encoder_output_buffer;
-#if 0 
-static OMX_BUFFERHEADERTYPE* preview_output_buffer;
-#else
 static OMX_BUFFERHEADERTYPE* resize_output_buffer;
-#endif
 static component_t camera;
 static component_t encoder;
-#if 0 
-static component_t encoder_prv;
-#endif
 static component_t resize;
 static component_t splitter;
 static component_t null_sink;
@@ -60,6 +53,7 @@ void rpiomx_open()
     set_h264_port_definition(&encoder);
     //Configure H264
     set_h264_settings(&encoder);
+
     //Configure resize port definition
     set_resize_port_definition(&resize);
 
@@ -300,7 +294,6 @@ void rpiomx_close()
     //Deinitialize components
     deinit_component(&camera);
     deinit_component(&encoder);
-
     deinit_component(&resize);
     deinit_component(&splitter);
     deinit_component(&null_sink);
