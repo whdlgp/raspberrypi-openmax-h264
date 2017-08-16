@@ -68,6 +68,9 @@ int get_NAL_type(unsigned char* frame, int len)
     return frame[4] & 0x1f;
 }
 
+//flag that encoding thread find key frame and will exit
+int encoding_thread_exit_flag;
+
 //Thread for encode and write to video.h264
 void* encoding_thread(void* arg)
 {
@@ -102,7 +105,7 @@ void* encoding_thread(void* arg)
         time_gap = currunt_time - pre_time;
         frame_rate = (double)1000000/(double)time_gap;
         frame_count++;
-        printf("enc-t:fn=%05d,fps=%4.1f\n", frame_count, frame_rate);
+        printf("preview_thread\nframecount : %d\nframerate : %f\n\n", frame_count, frame_rate);
         //check if user press "ctrl c" or other interrupt occured
         if(signal_flag_check())
         {
@@ -114,6 +117,7 @@ void* encoding_thread(void* arg)
             if(cmp->buffer->nFlags & OMX_BUFFERFLAG_SYNCFRAME)
             {
                 printf("encoding : SyncFrame found, It will be finished in a moment.\n");
+                encoding_thread_exit_flag = 1;
                 break;
             }
         }
@@ -153,7 +157,7 @@ void* preview_thread(void* arg)
     printf("preview thread will write to preview.h264 file\n");
 
     // init software codec
-    int width = 320, height= 240, bitrate = 300000, fps = 10; 
+    int width = PREVIEW_WIDTH, height= PREVIEW_HEIGHT, bitrate = PREVIEW_BITRATE, fps = PREVIEW_FRAMERATE; 
     ffh264_enc_open(width, height, bitrate, fps);
 
     while (1)
@@ -174,14 +178,19 @@ void* preview_thread(void* arg)
         {
             printf("preview : Termination by user detected\n");
             //signal interrupt detected
-            //wait the key frame for check the boundry of video and exit
+            
+            //If do not receive the resize buffer, will not see the high resolution encoder side buffer. 
+            //Wait until the keyframe appears in the high resolution encoder.
+            if(encoding_thread_exit_flag == 1)
+            {
+                break;
+            }
         }
 
 
 	// Encoding
         unsigned char *pBuffer;
         int n = ffh264_enc_encode(cmp->buffer->pBuffer, &pBuffer);
-        printf("pre-t: %d\n", n);
         if (n < 0)
         { // errror in encoding
             fprintf(stderr, "error: pwrite\n");
@@ -235,7 +244,7 @@ void* preview_thread(void* arg)
             time_gap = currunt_time - pre_time;
             frame_rate = (double) 1000000 / (double) time_gap;
             frame_count++;
-            printf("pre-t:fn=%05d,fps=%4.1f\n", frame_count, frame_rate);
+            printf("preview_thread\nframecount : %d\nframerate : %f\n\n", frame_count, frame_rate);
         }
     } // while loop
 
