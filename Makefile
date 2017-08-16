@@ -36,7 +36,7 @@ COMMON_SRC = $(COMPONENTS_SRC) $(DUMP_SRC)
 
 PREVIEW_DIR = ./h264_with_preview_dir
 PREVIEW_SRC = $(notdir $(wildcard $(PREVIEW_DIR)/*.c)) \
-
+			  $(COMMON_SRC) \
 
 PREVIEW_UDP_DIR = ./h264_udp_stream_dir
 PREVIEW_UDP_SRC = $(notdir $(wildcard $(PREVIEW_UDP_DIR)/*.c)) \
