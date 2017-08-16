@@ -118,9 +118,9 @@ void* encoding_thread(void* arg)
         }
 
         //Append the buffer into the file
-        if (pwrite(*(cmp->fd), cmp->buffer->pBuffer,
-                cmp->buffer->nFilledLen,
-                cmp->buffer->nOffset) == -1)
+        if (write(*(cmp->fd)
+                    , cmp->buffer->pBuffer
+                    , cmp->buffer->nFilledLen) == -1)
         {
             fprintf(stderr, "error: pwrite\n");
             vcos_thread_exit((void*)1);
@@ -192,9 +192,9 @@ void* preview_thread(void* arg)
         //printNALFrame(cmp->buffer->pBuffer, cmp->buffer->nFilledLen);
 
         //Append the buffer into the file
-        if (pwrite(*(cmp->fd), cmp->buffer->pBuffer,
-                cmp->buffer->nFilledLen,
-                cmp->buffer->nOffset) == -1)
+        if (write(*(cmp->fd)
+                    , cmp->buffer->pBuffer
+                    , cmp->buffer->nFilledLen) == -1)
         {
             fprintf(stderr, "error: pwrite\n");
             vcos_thread_exit((void*)1);
