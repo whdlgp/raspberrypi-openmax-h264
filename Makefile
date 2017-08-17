@@ -1,8 +1,9 @@
 PREVIEW_BIN = h264_with_preview
 FFPREVIEW_BIN = h264_with_ffpreview
 PREVIEW_UDP_BIN = h264_udp_stream
+FFPREVIEW_UDP_BIN = h264_udp_ffstream
 
-BINS = $(PREVIEW_BIN) $(FFPREVIEW_BIN) $(PREVIEW_UDP_BIN) 
+BINS = $(PREVIEW_BIN) $(FFPREVIEW_BIN) $(PREVIEW_UDP_BIN) $(FFPREVIEW_UDP_BIN) 
 
 CC = gcc
 CFLAGS = -DSTANDALONE -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS \
@@ -32,6 +33,10 @@ ifneq "$(findstring ffpreview, $(MAKECMDGOALS))" ""
 VPATH = $(COMPONENTS_DIR) $(DUMP_DIR) $(FFPREVIEW_DIR)
 endif
 
+ifneq "$(findstring ffpreview_udp, $(MAKECMDGOALS))" ""
+VPATH = $(COMPONENTS_DIR) $(DUMP_DIR) $(FFPREVIEW_UDP_DIR)
+endif
+
 COMMON_SRC = $(COMPONENTS_SRC) $(DUMP_SRC) 
 
 PREVIEW_DIR = ./h264_with_preview_dir
@@ -46,6 +51,10 @@ FFPREVIEW_DIR = ./h264_with_ffpreview_dir
 FFPREVIEW_SRC = $(notdir $(wildcard $(FFPREVIEW_DIR)/*.c)) \
 			  $(COMMON_SRC) \
 
+FFPREVIEW_UDP_DIR = ./h264_udp_ffstream_dir
+FFPREVIEW_UDP_SRC = $(notdir $(wildcard $(FFPREVIEW_UDP_DIR)/*.c)) \
+				  $(COMMON_SRC) \
+
 COMPONENTS_DIR = ./components
 COMPONENTS_SRC = $(notdir $(wildcard $(COMPONENTS_DIR)/*.c))
 
@@ -55,7 +64,8 @@ DUMP_SRC = $(notdir $(wildcard $(DUMP_DIR)/*.c))
 OBJ_DIR = ./objs
 PREVIEW_OBJS = $(addprefix $(OBJ_DIR)/,$(PREVIEW_SRC:.c=.o))
 FFPREVIEW_OBJS = $(addprefix $(OBJ_DIR)/,$(FFPREVIEW_SRC:.c=.o))
-PREVIEW_UDP_OBJS = $(addprefix $(OBJ_DIR)/,$(PREVIEW_UDP_SRC:.c=.o)) 
+PREVIEW_UDP_OBJS = $(addprefix $(OBJ_DIR)/,$(PREVIEW_UDP_SRC:.c=.o))
+FFPREVIEW_UDP_OBJS = $(addprefix $(OBJ_DIR)/,$(FFPREVIEW_UDP_SRC:.c=.o))
 
 #<HEEJUNE 2017.8.13
 # to automatically make object file directory (only needed first time) 
@@ -70,6 +80,8 @@ ffpreview: directories $(FFPREVIEW_BIN)
 
 preview_udp: directories $(PREVIEW_UDP_BIN)
 
+ffpreview_udp: directories $(FFPREVIEW_UDP_BIN)
+
 #HEEJUNE>
 
 $(OBJ_DIR)/%.o: %.c
@@ -83,6 +95,9 @@ $(FFPREVIEW_BIN): $(FFPREVIEW_OBJS)
 
 $(PREVIEW_UDP_BIN): $(PREVIEW_UDP_OBJS)
 	$(CC) -o $@ -Wl,--whole-archive $(PREVIEW_UDP_OBJS) $(LDFLAGS) -Wl,--no-whole-archive -rdynamic
+
+$(FFPREVIEW_UDP_BIN): $(FFPREVIEW_UDP_OBJS)
+	$(CC) -o $@ -Wl,--whole-archive $(FFPREVIEW_UDP_OBJS) $(LDFLAGS) $(LDFLAGS_AV) -Wl,--no-whole-archive -rdynamic
 
 .PHONY: clean printval
 
