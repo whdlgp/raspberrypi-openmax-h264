@@ -20,6 +20,8 @@ static AVCodecContext *c = NULL;  // codec status
 static AVFrame *frame;  // input picture
 //static void *backupptr;
 static AVPacket pkt;    // encoded data
+static int width_align; //when buffer allocation, must be padded to 32
+static int height_align; //when buffer allocation, must be padded to 16
 
 #ifdef SAVE_OWN_FILE
 static FILE *f;
@@ -112,12 +114,23 @@ int ffh264_enc_open(int w, int h, int bit_rate, int fps)
         fprintf(stderr, "Could not allocate video frame\n");
         return -1;
     }
+
+    //Width and height align
+    width_align = c->width;
+    if(c->width % 32 != 0)
+        width_align = (c->width / 32 + 1) * 32;
+    
+    height_align = c->height;
+    if(c->height % 16 != 0)
+        height_align = (c->height / 16 + 1) * 16;
+    
+    //setting frame buffer information
     frame->format = c->pix_fmt;
     frame->width = c->width;
     frame->height = c->height;
-    frame->linesize[0] = c->width;
-    frame->linesize[1] = c->width / 2;
-    frame->linesize[2] = c->width / 2;
+    frame->linesize[0] = width_align;
+    frame->linesize[1] = width_align / 2;
+    frame->linesize[2] = width_align / 2;
     frame->pts = 0; // init pts
 
     //@TODO: make a dual buffer
@@ -164,7 +177,6 @@ void ffh264_get_global_header(int* header_size, unsigned char* header_data)
 int ffh264_enc_encode(unsigned char *pYUV, unsigned char **ppBuf)
 {
     int ret, got_output;
-    int width = c->width, height = c->height;
 
     // output buffer setting
     if (pkt.data != NULL)
@@ -178,9 +190,16 @@ int ffh264_enc_encode(unsigned char *pYUV, unsigned char **ppBuf)
     //void (*cbf_save)(const unsigned char *, int) = cbf;
 
     //build_input_YUVframe(pYUV, frame);
-    memcpy(frame->data[0], pYUV, width * height);
-    memcpy(frame->data[1], pYUV + width * height, width * height / 4);
-    memcpy(frame->data[2], pYUV + width * height * 5 / 4, width * height / 4);
+    memcpy(frame->data[0]
+            , pYUV
+            , frame->linesize[0] * height_align);
+    memcpy(frame->data[1]
+            , pYUV + frame->linesize[0] * height_align
+            , frame->linesize[1] * height_align / 2);
+    memcpy(frame->data[2]
+            , pYUV + frame->linesize[0] * height_align
+                   + frame->linesize[1] * height_align / 2
+            , frame->linesize[2] * height_align / 2);
 
     ++frame->pts;
 
