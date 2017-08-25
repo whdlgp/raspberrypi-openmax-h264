@@ -9,6 +9,8 @@ Build steps:
 - Download this repository.
 - if want to compile 'h264_with_preview' example, type 'make preview'
 - if want to compile 'h264_udp_stream' example, type 'make preview_udp'
+- if want to compile 'h264_with_ffpreview' example, type 'make ffpreview'
+- if want to compile 'h264_udp_ffstream' example, type 'make ffpreview_udp'
 - and excute like './output file name'
 
 How to play H.264 video:
