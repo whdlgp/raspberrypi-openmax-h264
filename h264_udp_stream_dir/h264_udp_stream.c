@@ -13,6 +13,9 @@
 #include <string.h> /* memset() */
 #include <pthread.h>
 
+//compile and run as daemon
+#define RUN_DAEMON
+
 //Save High resolution video to file
 #define FILENAME "video.h264" 
 
@@ -570,6 +573,34 @@ static int stream_control(int sock, struct sockaddr_in *pCliAddr)
 
 int main(int argc, char **argv)
 {
+#ifdef RUN_DAEMON
+    pid_t pid;
+    //set working directory to '/'
+    //close stdin, stdout and stderr
+    if (daemon(1, 1) == -1) 
+    {
+        fprintf(stderr, "Can't create daemon process\n");
+        return 1;
+    }
+
+    //Make this process unable to create control terminal
+    if ((pid = fork()) == -1)
+    {
+        fprintf(stderr, "Can't create daemon process\n");
+        return 1;
+    }
+    else if (pid > 0) 
+    {
+        _exit(0);
+    }
+
+    printf("%s daemon run successfully\n", *argv);
+
+    //Prevent stdin, stdout, and stderr printing
+    stdin = freopen("/dev/null", "r", stdin);
+    stdout = freopen("/dev/null", "w", stdout);
+    stderr = freopen("/dev/null", "w", stderr);
+#endif
     int listenfd, connfd, port;
     socklen_t clientlen;
     struct sockaddr_in clientaddr;
