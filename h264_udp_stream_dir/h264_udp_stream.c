@@ -14,6 +14,7 @@
 #include <pthread.h>
 
 //compile and run as daemon
+//if want to run in console, disable this definition
 #define RUN_DAEMON
 
 //Save High resolution video to file
