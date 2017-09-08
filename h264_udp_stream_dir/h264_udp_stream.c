@@ -597,9 +597,10 @@ int main(int argc, char **argv)
     printf("%s daemon run successfully\n", *argv);
 
     //Prevent stdin, stdout, and stderr printing
-    stdin = freopen("/dev/null", "r", stdin);
-    stdout = freopen("/dev/null", "w", stdout);
-    stderr = freopen("/dev/null", "w", stderr);
+    //stdout and stderr will print to log file
+    freopen("/dev/null", "r", stdin);
+    freopen("debug.log", "w", stderr);
+    freopen("/dev/null", "r", stdout);
 #endif
     int listenfd, connfd, port;
     socklen_t clientlen;
