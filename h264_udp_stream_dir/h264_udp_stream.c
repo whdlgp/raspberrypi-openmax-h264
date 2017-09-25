@@ -601,7 +601,7 @@ int main(int argc, char **argv)
     //stdout and stderr will print to log file
     freopen("/dev/null", "r", stdin);
     freopen("debug.log", "w", stderr);
-    freopen("/dev/null", "r", stdout);
+    freopen("/dev/null", "w", stdout);
 #endif
     int listenfd, connfd, port;
     socklen_t clientlen;
