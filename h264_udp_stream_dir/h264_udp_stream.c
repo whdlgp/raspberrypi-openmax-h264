@@ -474,6 +474,9 @@ static int stream_control(int sock, struct sockaddr_in *pCliAddr)
                 if (elapsedtimeKeepAlive() > 2 * KEEP_ALIVE_INTERVAL)
                 {
                     fprintf(stderr, "Time-OUTED\n");
+                    quit_flag = 1;
+                    r = pthread_join(tid, (void **) &retval);
+                    quit_flag = 0;
                 }
             }
             continue; 
